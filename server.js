@@ -44,19 +44,16 @@ app.post('/logout', (req, res) => {
   });
 });
 
-// Middleware to protect dashboard route
+// Protect all routes except /login and /api/data
 app.use((req, res, next) => {
-  if (
-    req.session.loggedIn ||
-    req.path === '/login' ||
-    req.path === '/api/data'
-  ) {
+  const allowedPaths = ['/login', '/api/data'];
+  if (req.session.loggedIn || allowedPaths.includes(req.path)) {
     return next();
   }
   res.redirect('/login');
 });
 
-// Dashboard page
+// 🛡 Redirect root (/) to /login if not logged in
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
