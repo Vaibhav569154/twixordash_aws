@@ -32,7 +32,7 @@ h1 {
   background-color: #c0392b;
 }
 
-/* Filter Sidebar */
+/* Filter Toggle Button */
 .filter-toggle {
   background-color: #0b875b;
   color: white;
@@ -44,21 +44,23 @@ h1 {
   margin-bottom: 10px;
 }
 
+/* Filter Sidebar */
 .filter-sidebar {
   position: fixed;
   top: 0;
-  right: -300px;
+  right: -320px; /* Hidden off-screen by default */
   width: 300px;
   height: 100%;
   background: white;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  box-shadow: -2px 0 5px rgba(0,0,0,0.2);
   padding: 20px;
   transition: right 0.3s ease;
   z-index: 1000;
+  overflow-y: auto;
 }
 
 .filter-sidebar.open {
-  right: 0;
+  right: 0; /* Slides into view */
 }
 
 .filter-header {
@@ -85,9 +87,21 @@ h1 {
   gap: 15px;
 }
 
+.filter-body label {
+  font-weight: bold;
+}
+
+.filter-body input[type="date"],
+.filter-body input[type="text"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
 .filter-actions {
   display: flex;
   justify-content: space-between;
+  margin-top: 20px;
 }
 
 .btn {
@@ -190,5 +204,10 @@ h1 {
 
   .filter-sidebar {
     width: 100%;
+    right: -100%; /* Hide full-width off-screen */
+  }
+
+  .filter-sidebar.open {
+    right: 0;
   }
 }

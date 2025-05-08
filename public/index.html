@@ -14,13 +14,23 @@
     </form>
   </div>
 
-  <button class="filter-toggle" onclick="toggleFilter()">☰ Filters</button>
+  <!-- Filter Button -->
+  <div class="controls">
+    <button class="filter-toggle" id="filterToggle">☰ Filters</button>
+    <div>
+      <label for="job-filter">Filter by Job:</label>
+      <select id="job-filter">
+        <option value="">All</option>
+      </select>
+      <button onclick="downloadExcel()" class="btn">Download</button>
+    </div>
+  </div>
 
-  <!-- Sidebar Filter -->
+  <!-- Sidebar Filter (No 'open' class initially) -->
   <div id="filterSidebar" class="filter-sidebar">
     <div class="filter-header">
       <h3>Filters</h3>
-      <button class="close-btn" onclick="toggleFilter()">×</button>
+      <button class="close-btn" id="closeSidebar">×</button>
     </div>
     <div class="filter-body">
       <label for="dateFrom">Date From</label>
@@ -30,24 +40,14 @@
       <label for="mobileFilter">Mobile Number</label>
       <input type="text" id="mobileFilter" placeholder="Enter mobile number">
       <div class="filter-actions">
-        <button onclick="clearFilters()" class="btn secondary">Clear</button>
-        <button onclick="applyFilters()" class="btn">Apply</button>
+        <button id="clearFilters" class="btn secondary">Clear</button>
+        <button id="applyFilters" class="btn">Apply</button>
       </div>
     </div>
   </div>
 
   <div class="report-container">
-    <div class="controls">
-      <h3 id="count">Loading...</h3>
-      <div>
-        <label for="job-filter">Filter by Job:</label>
-        <select id="job-filter">
-          <option value="">All</option>
-        </select>
-        <button onclick="downloadExcel()" class="btn">Download</button>
-      </div>
-    </div>
-
+    <h3 id="count">Loading...</h3>
     <table id="data-table">
       <thead>
         <tr>
@@ -64,94 +64,102 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
-    let fullData = [];
+    document.addEventListener("DOMContentLoaded", function () {
+      let fullData = [];
 
-    fetch('/api/data')
-      .then(res => res.json())
-      .then(data => {
-        fullData = data;
-        populateFilter(data);
-        renderTable(data);
-      })
-      .catch(err => {
-        console.error('Error loading data:', err);
-        document.getElementById('count').textContent = "Failed to load data.";
-      });
+      fetch('/api/data')
+        .then(res => res.json())
+        .then(data => {
+          fullData = data;
+          populateFilter(data);
+          renderTable(data);
+        })
+        .catch(err => {
+          console.error('Error loading data:', err);
+          document.getElementById('count').textContent = "Failed to load data.";
+        });
 
-    function populateFilter(data) {
-      const jobs = [...new Set(data.map(d => d.Job).filter(Boolean))];
-      const filter = document.getElementById('job-filter');
-      jobs.forEach(job => {
-        const opt = document.createElement('option');
-        opt.value = job;
-        opt.textContent = job;
-        filter.appendChild(opt);
-      });
+      function populateFilter(data) {
+        const jobs = [...new Set(data.map(d => d.Job).filter(Boolean))];
+        const filter = document.getElementById('job-filter');
+        jobs.forEach(job => {
+          const opt = document.createElement('option');
+          opt.value = job;
+          opt.textContent = job;
+          filter.appendChild(opt);
+        });
 
-      filter.addEventListener('change', () => {
-        applyFilters();
-      });
-    }
-
-    function toggleFilter() {
-      document.getElementById("filterSidebar").classList.toggle("open");
-    }
-
-    function clearFilters() {
-      document.getElementById("dateFrom").value = '';
-      document.getElementById("dateTo").value = '';
-      document.getElementById("mobileFilter").value = '';
-      document.getElementById("job-filter").value = '';
-      renderTable(fullData);
-    }
-
-    function applyFilters() {
-      const from = document.getElementById("dateFrom").value;
-      const to = document.getElementById("dateTo").value;
-      const mobile = document.getElementById("mobileFilter").value.trim();
-      const job = document.getElementById("job-filter").value;
-
-      let filtered = fullData;
-
-      if (from) {
-        filtered = filtered.filter(row => new Date(row.Timestamp) >= new Date(from));
-      }
-      if (to) {
-        filtered = filtered.filter(row => new Date(row.Timestamp) <= new Date(to));
-      }
-      if (mobile) {
-        filtered = filtered.filter(row => (row["Mobile Number"] || '').includes(mobile));
-      }
-      if (job) {
-        filtered = filtered.filter(row => row.Job === job);
+        filter.addEventListener('change', applyFilters);
       }
 
-      renderTable(filtered);
-    }
+      function clearFilters() {
+        document.getElementById("dateFrom").value = '';
+        document.getElementById("dateTo").value = '';
+        document.getElementById("mobileFilter").value = '';
+        document.getElementById("job-filter").value = '';
+        renderTable(fullData);
+      }
 
-    function renderTable(data) {
-      const tableBody = document.getElementById('table-body');
-      tableBody.innerHTML = "";
-      document.getElementById('count').textContent = `No of entries: ${data.length}`;
+      function applyFilters() {
+        const from = document.getElementById("dateFrom").value;
+        const to = document.getElementById("dateTo").value;
+        const mobile = document.getElementById("mobileFilter").value.trim();
+        const job = document.getElementById("job-filter").value;
 
-      data.forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${item["Timestamp"] || ""}</td>
-          <td>${item["Name"] || ""}</td>
-          <td>${item["Job"] || ""}</td>
-          <td>${item["Mobile Number"] || ""}</td>
-        `;
-        tableBody.appendChild(row);
+        let filtered = fullData;
+
+        if (from) {
+          filtered = filtered.filter(row => new Date(row.Timestamp) >= new Date(from));
+        }
+        if (to) {
+          filtered = filtered.filter(row => new Date(row.Timestamp) <= new Date(to));
+        }
+        if (mobile) {
+          filtered = filtered.filter(row => (row["Mobile Number"] || '').includes(mobile));
+        }
+        if (job) {
+          filtered = filtered.filter(row => row.Job === job);
+        }
+
+        renderTable(filtered);
+      }
+
+      function renderTable(data) {
+        const tableBody = document.getElementById('table-body');
+        tableBody.innerHTML = "";
+        document.getElementById('count').textContent = `No of entries: ${data.length}`;
+
+        data.forEach((item, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${item["Timestamp"] || ""}</td>
+            <td>${item["Name"] || ""}</td>
+            <td>${item["Job"] || ""}</td>
+            <td>${item["Mobile Number"] || ""}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
+
+      function downloadExcel() {
+        const table = document.getElementById('data-table');
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Report" });
+        XLSX.writeFile(wb, "report.xlsx");
+      }
+
+      // Sidebar toggle
+      document.getElementById("filterToggle").addEventListener("click", () => {
+        document.getElementById("filterSidebar").classList.add("open");
       });
-    }
 
-    function downloadExcel() {
-      const table = document.getElementById('data-table');
-      const wb = XLSX.utils.table_to_book(table, { sheet: "Report" });
-      XLSX.writeFile(wb, "report.xlsx");
-    }
+      document.getElementById("closeSidebar").addEventListener("click", () => {
+        document.getElementById("filterSidebar").classList.remove("open");
+      });
+
+      document.getElementById("clearFilters").addEventListener("click", clearFilters);
+      document.getElementById("applyFilters").addEventListener("click", applyFilters);
+    });
   </script>
 </body>
 </html>
