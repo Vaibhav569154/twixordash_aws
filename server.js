@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  password: process.env.DB_PASS,
+  password: process.env.DB_PASS || process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
 });
@@ -93,8 +93,10 @@ app.get('/api/data', (req, res) => {
 // ✅ API: Receive data from chatbot (POST)
 app.post('/api/add', (req, res) => {
   const { name, job, mobile } = req.body;
-  const sql = 'INSERT INTO main (name, mobile, job) VALUES (?, ?, ?)';
-  db.query(sql, [name, job, mobile], (err, result) => {
+  const timestamp = new Date();
+
+  const sql = 'INSERT INTO main (timestamp, name, job, mobile) VALUES (?, ?, ?, ?)';
+  db.query(sql, [timestamp, name, job, mobile], (err, result) => {
     if (err) {
       console.error('❌ Error inserting data:', err);
       return res.status(500).json({ error: 'Failed to save data' });
