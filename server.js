@@ -93,7 +93,7 @@ app.get('/api/data', (req, res) => {
 // ✅ API: Receive data from chatbot (POST)
 app.post('/api/add', (req, res) => {
   const { name, job, mobile } = req.body;
-  const sql = 'INSERT INTO main (name, job, mobile) VALUES (?, ?, ?)';
+  const sql = 'INSERT INTO main (name, mobile, job) VALUES (?, ?, ?)';
   db.query(sql, [name, job, mobile], (err, result) => {
     if (err) {
       console.error('❌ Error inserting data:', err);
