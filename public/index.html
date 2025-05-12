@@ -21,7 +21,7 @@
       <select id="job-filter">
         <option value="">All</option>
       </select>
-      <button onclick="downloadExcel()" class="btn">Download</button>
+      <button id="downloadBtn" class="btn">Download</button>
     </div>
   </div>
 
@@ -128,10 +128,21 @@
         document.getElementById('count').textContent = `No of entries: ${data.length}`;
 
         data.forEach((item, index) => {
+          const formattedDate = item.timestamp
+            ? new Date(item.timestamp).toLocaleString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
+            : "";
+
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${index + 1}</td>
-            <td>${item.timestamp ? new Date(item.timestamp).toLocaleString() : ""}</td>
+            <td>${formattedDate}</td>
             <td>${item.name || ""}</td>
             <td>${item.job || ""}</td>
             <td>${item.mobile || ""}</td>
@@ -141,19 +152,20 @@
       }
 
       function downloadExcel() {
-        const table = document.getElementById('data-table');
-        const wb = XLSX.utils.table_to_book(table, { sheet: "Report" });
+        const table = document.getElementById("data-table");
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.table_to_sheet(table);
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
         XLSX.writeFile(wb, "report.xlsx");
       }
 
+      document.getElementById("downloadBtn").addEventListener("click", downloadExcel);
       document.getElementById("filterToggle").addEventListener("click", () => {
         document.getElementById("filterSidebar").classList.add("open");
       });
-
       document.getElementById("closeSidebar").addEventListener("click", () => {
         document.getElementById("filterSidebar").classList.remove("open");
       });
-
       document.getElementById("clearFilters").addEventListener("click", clearFilters);
       document.getElementById("applyFilters").addEventListener("click", applyFilters);
     });
