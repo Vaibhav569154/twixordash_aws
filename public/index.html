@@ -14,7 +14,6 @@
     </form>
   </div>
 
-  <!-- Filter Button -->
   <div class="controls">
     <button class="filter-toggle" id="filterToggle">☰ Filters</button>
     <div>
@@ -26,7 +25,6 @@
     </div>
   </div>
 
-  <!-- Sidebar Filter (No 'open' class initially) -->
   <div id="filterSidebar" class="filter-sidebar">
     <div class="filter-header">
       <h3>Filters</h3>
@@ -80,7 +78,7 @@
         });
 
       function populateFilter(data) {
-        const jobs = [...new Set(data.map(d => d.Job).filter(Boolean))];
+        const jobs = [...new Set(data.map(d => d.job).filter(Boolean))];
         const filter = document.getElementById('job-filter');
         jobs.forEach(job => {
           const opt = document.createElement('option');
@@ -109,16 +107,16 @@
         let filtered = fullData;
 
         if (from) {
-          filtered = filtered.filter(row => new Date(row.Timestamp) >= new Date(from));
+          filtered = filtered.filter(row => new Date(row.timestamp) >= new Date(from));
         }
         if (to) {
-          filtered = filtered.filter(row => new Date(row.Timestamp) <= new Date(to));
+          filtered = filtered.filter(row => new Date(row.timestamp) <= new Date(to));
         }
         if (mobile) {
-          filtered = filtered.filter(row => (row["Mobile Number"] || '').includes(mobile));
+          filtered = filtered.filter(row => (row.mobile || '').includes(mobile));
         }
         if (job) {
-          filtered = filtered.filter(row => row.Job === job);
+          filtered = filtered.filter(row => row.job === job);
         }
 
         renderTable(filtered);
@@ -133,10 +131,10 @@
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${index + 1}</td>
-            <td>${item["Timestamp"] || ""}</td>
-            <td>${item["Name"] || ""}</td>
-            <td>${item["Job"] || ""}</td>
-            <td>${item["Mobile Number"] || ""}</td>
+            <td>${item.timestamp || ""}</td>
+            <td>${item.name || ""}</td>
+            <td>${item.job || ""}</td>
+            <td>${item.mobile || ""}</td>
           `;
           tableBody.appendChild(row);
         });
@@ -148,7 +146,6 @@
         XLSX.writeFile(wb, "report.xlsx");
       }
 
-      // Sidebar toggle
       document.getElementById("filterToggle").addEventListener("click", () => {
         document.getElementById("filterSidebar").classList.add("open");
       });
