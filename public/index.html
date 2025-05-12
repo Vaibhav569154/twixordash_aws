@@ -131,7 +131,7 @@
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${index + 1}</td>
-            <td>${item.timestamp || ""}</td>
+            <td>${item.timestamp ? new Date(item.timestamp).toLocaleString() : ""}</td>
             <td>${item.name || ""}</td>
             <td>${item.job || ""}</td>
             <td>${item.mobile || ""}</td>
