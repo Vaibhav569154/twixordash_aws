@@ -66,7 +66,7 @@ app.post('/logout', (req, res) => {
 
 // Middleware to protect all other routes except public ones
 app.use((req, res, next) => {
-  const publicPaths = ['/login', '/api/add'];
+  const publicPaths = ['/login', '/api/add', '/api/data'];
   if (req.session.loggedIn || publicPaths.includes(req.path)) {
     return next();
   }
