@@ -23,7 +23,7 @@ app.use(session({
 // Serve static files from the "public" folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ MySQL connection pool setup
+// ✅ MySQL connection pool setup with keep-alive
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -33,6 +33,8 @@ const db = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
 });
 
 // Login page
