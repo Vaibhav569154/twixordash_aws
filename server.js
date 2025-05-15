@@ -92,11 +92,15 @@ app.get('/api/data', (req, res) => {
 
 // ✅ API: Receive data from chatbot (POST)
 app.post('/api/add', (req, res) => {
-  const { name, job, mobile } = req.body;
-  const timestamp = new Date();
+  const apiKey = req.headers['x-api-key'];
 
-  const sql = 'INSERT INTO main (timestamp, name, job, mobile) VALUES (?, ?, ?, ?)';
-  db.query(sql, [timestamp, name, job, mobile], (err, result) => {
+  if (apiKey !== process.env.API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized - Invalid API Key' });
+  }
+
+  const { name, job, mobile } = req.body;
+  const sql = 'INSERT INTO main (name, mobile, job) VALUES (?, ?, ?)';
+  db.query(sql, [name, mobile, job], (err, result) => {
     if (err) {
       console.error('❌ Error inserting data:', err);
       return res.status(500).json({ error: 'Failed to save data' });
